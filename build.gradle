@@ -1,0 +1,24 @@
+plugins { id 'com.android.application' version '8.7.3' }
+
+android {
+    namespace 'com.avtobudilka'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.avtobudilka'
+        minSdk 30          // Wear OS 3+ (Galaxy Watch 4 in novejse)
+        targetSdk 35
+        versionCode 1
+        versionName '1.0'
+    }
+    buildTypes {
+        release { minifyEnabled true; shrinkResources true }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.health:health-services-client:1.1.0-alpha05'
+}

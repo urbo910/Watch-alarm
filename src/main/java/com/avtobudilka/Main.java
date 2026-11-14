@@ -1,0 +1,91 @@
+package com.avtobudilka;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.text.format.DateFormat;
+import android.view.Gravity;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Switch;
+import android.widget.TextView;
+
+/** Nastavitve: vklop/izklop + rezervni alarm (brez / +5 / +10 min). */
+public class Main extends Activity {
+
+    private static final String PERM = Manifest.permission.ACTIVITY_RECOGNITION;
+    private SharedPreferences p;
+    private Switch onOff;
+    private Button extra;
+    private TextView info;
+
+    @Override
+    protected void onCreate(Bundle b) {
+        super.onCreate(b);
+        p = Alarm.prefs(this);
+
+        LinearLayout l = new LinearLayout(this);
+        l.setOrientation(LinearLayout.VERTICAL);
+        l.setGravity(Gravity.CENTER);
+        l.setPadding(40, 40, 40, 40);
+
+        onOff = new Switch(this);
+        onOff.setText("Avto budilka");
+        onOff.setChecked(p.getBoolean("on", false));
+        onOff.setOnCheckedChangeListener((v, on) -> {
+            p.edit().putBoolean("on", on).apply();
+            if (!on) { // izklop: preklici vse
+                Alarm.cancel(this, 0);
+                Alarm.cancel(this, 1);
+                p.edit().remove("last").apply();
+            }
+            sync();
+        });
+        l.addView(onOff);
+
+        extra = new Button(this);
+        extra.setOnClickListener(v -> {
+            int e = p.getInt("extra", 0);
+            p.edit().putInt("extra", e == 0 ? 5 : e == 5 ? 10 : 0).apply();
+            Alarm.cancel(this, 1); // ce je alarm za nocoj ze nastavljen, posodobi rezervo
+            if (p.getBoolean("on", false)) Alarm.arm(this, p.getLong("last", 0));
+            show();
+        });
+        l.addView(extra);
+
+        info = new TextView(this);
+        info.setGravity(Gravity.CENTER);
+        l.addView(info);
+
+        setContentView(l);
+        sync();
+    }
+
+    private void sync() {
+        boolean on = p.getBoolean("on", false);
+        if (on && checkSelfPermission(PERM) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{PERM}, 1);
+            return;
+        }
+        Alarm.listen(this, on);
+        show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+        if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED) sync();
+        else onOff.setChecked(false); // brez dovoljenja ne gre
+    }
+
+    private void show() {
+        int e = p.getInt("extra", 0);
+        extra.setText(e == 0 ? "Rezerva: brez" : "Rezerva: +" + e + " min");
+
+        long t = p.getLong("last", 0) + Alarm.SLEEP;
+        if (!p.getBoolean("on", false)) info.setText("Izklopljeno");
+        else if (t > System.currentTimeMillis()) info.setText("Alarm ob " + DateFormat.getTimeFormat(this).format(t));
+        else info.setText("Cakam, da zaspis (7 h 30 min)");
+    }
+}
