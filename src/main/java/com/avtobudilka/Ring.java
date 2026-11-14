@@ -30,6 +30,7 @@ public class Ring extends Activity {
         vib = getSystemService(Vibrator.class);
         vib.vibrate(VibrationEffect.createWaveform(new long[]{0, 800, 400}, 0), alarm);
         tone = RingtoneManager.getRingtone(this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM));
+        if (!Alarm.prefs(this).getBoolean("sound", true)) tone = null; // samo vibracija
         if (tone != null) {
             tone.setAudioAttributes(alarm);
             tone.setLooping(true);

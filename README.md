@@ -6,6 +6,8 @@ Narejeno za Samsung Galaxy Watch 8, deluje na vseh urah z Wear OS 3+.
 - Vklop / izklop v aplikaciji
 - Rezervni alarm: brez / +5 / +10 min (ce prespis prvega)
 - Uposteva samo **prvo** zaspanje v noci (12 h okno), kasnejsa prebujanja ignorira
+- Zvok + vibracija ali samo vibracija
+- Ko se alarm nastavi, dobis tiho obvestilo z gumbom **Preklici** (ce si samo zadremal)
 - Varcno z baterijo: app ne tece v ozadju, ura jo poklice samo ob spremembi stanja (Health Services)
 
 ## Namestitev
