@@ -1,6 +1,7 @@
 package com.avtobudilka;
 
 import android.content.SharedPreferences;
+import android.text.format.DateFormat;
 
 import androidx.health.services.client.PassiveListenerService;
 import androidx.health.services.client.data.UserActivityInfo;
@@ -13,6 +14,8 @@ public class SleepService extends PassiveListenerService {
 
     @Override
     public void onUserActivityInfoReceived(UserActivityInfo info) {
+        Alarm.debug(this, info.getUserActivityState() + " ob "
+                + DateFormat.getTimeFormat(this).format(System.currentTimeMillis()));
         if (info.getUserActivityState() != UserActivityState.USER_ACTIVITY_ASLEEP) return;
 
         SharedPreferences p = Alarm.prefs(this);
@@ -21,5 +24,10 @@ public class SleepService extends PassiveListenerService {
 
         p.edit().putLong("last", now).apply();
         Alarm.arm(this, now);
+    }
+
+    @Override
+    public void onRegistrationFailed(Throwable t) {
+        Alarm.debug(this, "Napaka: " + t);
     }
 }

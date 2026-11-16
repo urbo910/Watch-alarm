@@ -29,11 +29,19 @@ public class Alarm extends BroadcastReceiver {
     static void listen(Context c, boolean on) {
         PassiveMonitoringClient m = HealthServices.getClient(c).getPassiveMonitoringClient();
         if (on) {
-            m.setPassiveListenerServiceAsync(SleepService.class,
+            var f = m.setPassiveListenerServiceAsync(SleepService.class,
                     PassiveListenerConfig.builder().setShouldUserActivityInfoBeRequested(true).build());
+            f.addListener(() -> { // ce prijava ne uspe, to pokazemo v aplikaciji
+                try { f.get(); } catch (Exception e) { debug(c, "Napaka: " + e.getCause()); }
+            }, Runnable::run);
         } else {
             m.clearPassiveListenerServiceAsync();
         }
+    }
+
+    /** Zadnje stanje, ki ga je poslala ura (za iskanje napak). */
+    static void debug(Context c, String s) {
+        prefs(c).edit().putString("dbg", s).apply();
     }
 
     /** Nastavi glavni alarm (in rezervnega, ce je vklopljen) glede na cas, ko si zaspal. */

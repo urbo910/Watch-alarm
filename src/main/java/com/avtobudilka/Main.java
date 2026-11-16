@@ -91,5 +91,6 @@ public class Main extends Activity {
         if (!p.getBoolean("on", false)) info.setText("Izklopljeno");
         else if (t > System.currentTimeMillis()) info.setText("Alarm ob " + DateFormat.getTimeFormat(this).format(t));
         else info.setText("Cakam, da zaspis (7 h 30 min)");
+        info.append("\n\nZadnje: " + p.getString("dbg", "se nic"));
     }
 }
